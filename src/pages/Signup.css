@@ -8,6 +8,7 @@
   align-items: center;
   background-color: #2d2730; /* Added black background */
 }
+
 .background-animation {
   position: absolute;
   top: 0;
@@ -82,4 +83,33 @@
 
 .signin-link a:hover {
   text-decoration: underline;
+}
+
+/* ======= MOBILE RESPONSIVE ======= */
+@media (max-width: 480px) {
+  .signup-box {
+    width: 90%;
+    padding: 25px 15px;
+    border-radius: 12px;
+  }
+
+  .signup-box h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .google-btn {
+    padding: 10px 15px;
+    font-size: 13px;
+  }
+
+  .google-btn img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .signin-link {
+    font-size: 12px;
+    margin-top: 12px;
+  }
 }
