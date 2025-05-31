@@ -80,6 +80,7 @@
   font-size: 12px;
   font-family: 'Poppins', sans-serif;
 }
+
 /* Dropdown container */
 .header-links .dropdown {
   position: relative;
@@ -123,6 +124,7 @@
   background-color: #7a6e6e;
   color: #ddd;
 }
+
 .github-link {
   display: flex;
   align-items: center;
@@ -135,6 +137,7 @@
 .github-link:hover {
   color: #ddd; /* or another hover color */
 }
+
 .homepage-description {
   max-width: 700px;
   text-align: center;
@@ -148,4 +151,53 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* ======= MOBILE RESPONSIVE ======= */
+@media (max-width: 768px) {
+  .homepage {
+    padding: 30px 15px;
+    height: auto; /* Let it grow instead of fixed 100vh */
+  }
+
+  .header {
+    height: 60px;
+    padding: 0 15px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .header-logo {
+    font-size: 18px;
+  }
+
+  .header-links {
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .header-links a {
+    font-size: 14px;
+  }
+
+  .get-started-cylinder {
+    width: 100px;
+    height: 40px;
+    bottom: 60px;
+  }
+
+  .homepage-description {
+    font-size: 22px;
+    padding: 15px 10px;
+    max-width: 90%;
+  }
+  
+  /* Dropdown menu width adjustment */
+  .header-links .dropdown-menu {
+    min-width: 140px;
+    left: auto;
+    right: 0;
+  }
 }
