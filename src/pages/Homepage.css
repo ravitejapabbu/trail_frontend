@@ -1,0 +1,151 @@
+.homepage {
+  background-color: black;
+  color: white;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 50px 20px;
+  position: relative;
+}
+
+/* Header styles */
+.header {
+  width: 90%;
+  height: 80px;
+  background-color: #565050;
+  border-radius: 25px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 25px;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.header-logo {
+  font-size: 22px;
+  font-weight: 600;
+  font-family: 'Poppins', cursive;
+  color: white; /* white text */
+  transition: color 0.3s ease;
+}
+
+.header-logo a:hover {
+  color: #bbb; /* subtle lighter hover */
+}
+
+.header-links {
+  display: flex;
+  gap: 25px;
+  align-items: center;
+}
+
+.header-links a {
+  color: white; /* white links */
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.header-links a:hover {
+  color: #aaa; /* subtle lighter hover */
+}
+
+/* Get started cylinder button */
+.get-started-cylinder {
+  width: 120px;
+  height: 45px;
+  background-color: white;
+  border-radius: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: absolute;
+  bottom: 100px;
+  transition: transform 0.3s ease;
+}
+
+.get-started-cylinder:hover {
+  transform: scale(1.05);
+}
+
+.get-started-cylinder p {
+  margin: 0;
+  color: black;
+  font-weight: bold;
+  font-size: 12px;
+  font-family: 'Poppins', sans-serif;
+}
+/* Dropdown container */
+.header-links .dropdown {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Dropdown menu - hidden by default */
+.header-links .dropdown-menu {
+  position: absolute;
+  top: 100%; /* just below the parent */
+  left: 0;
+  background-color: #565050;
+  border-radius: 8px;
+  padding: 10px 0;
+  min-width: 180px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+}
+
+/* Show dropdown on hover */
+.header-links .dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Dropdown items */
+.header-links .dropdown-menu a {
+  display: block;
+  padding: 8px 20px;
+  color: white;
+  text-decoration: none;
+  font-weight: 400;
+  font-size: 14px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.header-links .dropdown-menu a:hover {
+  background-color: #7a6e6e;
+  color: #ddd;
+}
+.github-link {
+  display: flex;
+  align-items: center;
+  color: white; /* or your desired link color */
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.github-link:hover {
+  color: #ddd; /* or another hover color */
+}
+.homepage-description {
+  max-width: 700px;
+  text-align: center;
+  font-size: 32px;
+  line-height: 1.5;
+  font-family: 'Poppins', sans-serif;
+  color: white;
+  margin: auto;
+  padding: 20px 10px;
+  flex-grow: 1; /* so it expands in flex container */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
