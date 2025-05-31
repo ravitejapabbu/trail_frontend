@@ -80,6 +80,7 @@
   font-size: 12px;
   font-family: 'Poppins', sans-serif;
 }
+
 /* Dropdown container */
 .header-links .dropdown {
   position: relative;
@@ -123,6 +124,7 @@
   background-color: #7a6e6e;
   color: #ddd;
 }
+
 .github-link {
   display: flex;
   align-items: center;
@@ -135,6 +137,7 @@
 .github-link:hover {
   color: #ddd; /* or another hover color */
 }
+
 .homepage-description {
   max-width: 700px;
   text-align: center;
@@ -149,6 +152,7 @@
   align-items: flex-start;   /* Align content to the top */
   justify-content: center;   /* Keep horizontal centering */
 }
+
 /* Logo container styles */
 .logo-container {
   display: flex;
