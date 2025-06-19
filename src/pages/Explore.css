@@ -32,16 +32,3 @@
 .header-link:hover {
   color: #ddd;
 }
-
-.github-link {
-  display: flex;
-  align-items: center;
-  color: white;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.github-link:hover {
-  color: #ddd;
-}
