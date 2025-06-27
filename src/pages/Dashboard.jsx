@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Dashboard.css';
 import logo2 from '../assets/animations/github.png';
 import logo3 from '../assets/animations/linkedin.png';
@@ -7,65 +7,91 @@ import exploreIcon from '../assets/animations/explore.png';
 
 function Dashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [githubUser, setGithubUser] = useState("");
+  const [linkedinUser, setLinkedinUser] = useState("");
 
   const messagesEndRef = useRef(null);
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
+  // 🌐 Load env variables
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
+  const LINKEDIN_CLIENT_ID = process.env.REACT_APP_LINKEDIN_CLIENT_ID;
+  const LINKEDIN_REDIRECT_URI = process.env.REACT_APP_LINKEDIN_REDIRECT_URI;
+
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const closeSidebar = () => setSidebarOpen(false);
+
+  const loginWithGithub = () => {
+    window.location.href = `${BASE_URL}/github/login`;
   };
 
-  const closeSidebar = () => {
-    setSidebarOpen(false);
+  const loginWithLinkedIn = () => {
+    const authUrl = `https://www.linkedin.com/oauth/v2/authorization` +
+      `?response_type=code` +
+      `&client_id=${LINKEDIN_CLIENT_ID}` +
+      `&redirect_uri=${encodeURIComponent(LINKEDIN_REDIRECT_URI)}` +
+      `&scope=openid%20profile`;
+    window.location.href = authUrl;
   };
 
-  const handleLogout = () => {
-    sessionStorage.clear();
-    window.location.href = '/';
-  };
-
-  const loginWithGithub = async () => {
-    try {
-      const res = await fetch('http://localhost:5000/login/github', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'login' }),
-      });
-      const data = await res.json();
-      alert("GitHub login: " + data.message);
-    } catch (error) {
-      console.error(error);
-      alert("GitHub login failed");
-    }
-  };
-
-  const loginWithLinkedIn = async () => {
-    try {
-      const res = await fetch('http://localhost:5000/login/linkedin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'login' }),
-      });
-      const data = await res.json();
-      alert("LinkedIn login: " + data.message);
-    } catch (error) {
-      console.error(error);
-      alert("LinkedIn login failed");
-    }
-  };
-
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (input.trim() === "") return;
-    const newMessages = [
-      ...messages,
-      { type: "user", text: input },
-      { type: "bot", text: `You said: "${input}" 👋` }
-    ];
-    setMessages(newMessages);
+
+    setMessages((prev) => [...prev, { type: "user", text: input }]);
+
+    try {
+      const res = await fetch(`${BASE_URL}/chatbot`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input })
+      });
+
+      const data = await res.json();
+      const botResponse = data.response;
+
+      setMessages((prev) => [...prev, { type: "bot", text: botResponse }]);
+    } catch (err) {
+      console.error("Error calling chatbot API:", err);
+      setMessages((prev) => [...prev, { type: "bot", text: "❌ Sorry, something went wrong." }]);
+    }
+
     setInput("");
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const username = params.get('username');
+    const platform = params.get('platform');
+
+    if (username) {
+      if (platform === 'LinkedIn') {
+        setLinkedinUser(username);
+        sessionStorage.setItem('linkedinUser', username);
+      } else if (platform === 'GitHub') {
+        setGithubUser(username);
+        sessionStorage.setItem('githubUser', username);
+      }
+
+      fetch(`${BASE_URL}/save-user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, platform })
+      })
+        .then(res => res.json())
+        .then(data => console.log("User saved on backend:", data))
+        .catch(err => console.error("Error saving user:", err));
+    }
+  }, [location]);
+
+  useEffect(() => {
+    const savedGithub = sessionStorage.getItem('githubUser');
+    const savedLinkedin = sessionStorage.getItem('linkedinUser');
+    if (savedGithub) setGithubUser(savedGithub);
+    if (savedLinkedin) setLinkedinUser(savedLinkedin);
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -88,7 +114,6 @@ function Dashboard() {
 
       <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <a onClick={() => navigate('/profile')}>Profile</a>
-        <a onClick={handleLogout}>Logout</a>
       </div>
 
       <div className={`overlay ${sidebarOpen ? 'show' : ''}`} onClick={closeSidebar}></div>
@@ -100,14 +125,33 @@ function Dashboard() {
       </div>
 
       <div className="logo-container">
-        <div className="logo-item" onClick={loginWithGithub}>
-          <img src={logo2} alt="GitHub" />
-          <p>GitHub</p>
-        </div>
-        <div className="logo-item" onClick={loginWithLinkedIn}>
-          <img src={logo3} alt="LinkedIn" />
-          <p>LinkedIn</p>
-        </div>
+        {!githubUser && (
+          <div className="login-button" onClick={loginWithGithub}>
+            <img src={logo2} alt="GitHub" />
+            GitHub
+          </div>
+        )}
+
+        {!linkedinUser && (
+          <div className="login-button" onClick={loginWithLinkedIn}>
+            <img src={logo3} alt="LinkedIn" />
+            LinkedIn
+          </div>
+        )}
+
+        {githubUser && (
+          <div className="user-badge">
+            <img src={logo2} alt="GitHub" className="platform-icon" />
+            <p>{githubUser}</p>
+          </div>
+        )}
+
+        {linkedinUser && (
+          <div className="user-badge">
+            <img src={logo3} alt="LinkedIn" className="platform-icon" />
+            <p>{linkedinUser}</p>
+          </div>
+        )}
       </div>
 
       <div className="chatbox-compact">
