@@ -4,6 +4,7 @@ import './Dashboard.css';
 import logo2 from '../assets/animations/github.png';
 import logo3 from '../assets/animations/linkedin.png';
 import exploreIcon from '../assets/animations/explore.png';
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -13,10 +14,10 @@ function Dashboard() {
   const [input, setInput] = useState("");
   const [githubUser, setGithubUser] = useState("");
   const [linkedinUser, setLinkedinUser] = useState("");
+  const [activityData, setActivityData] = useState([]);
 
   const messagesEndRef = useRef(null);
 
-  // 🌐 Load env variables
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const LINKEDIN_CLIENT_ID = process.env.REACT_APP_LINKEDIN_CLIENT_ID;
   const LINKEDIN_REDIRECT_URI = process.env.REACT_APP_LINKEDIN_REDIRECT_URI;
@@ -61,6 +62,21 @@ function Dashboard() {
     setInput("");
   };
 
+  const fetchGithubActivity = async (username) => {
+    try {
+      const res = await fetch(`${BASE_URL}/analyze-github`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, token: process.env.REACT_APP_GITHUB_TOKEN })
+      });
+      const data = await res.json();
+      const dailyData = data.activity.daily;
+      setActivityData(dailyData.slice(-14)); // last 14 days for graph
+    } catch (err) {
+      console.error("Error fetching activity data:", err);
+    }
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const username = params.get('username');
@@ -73,6 +89,7 @@ function Dashboard() {
       } else if (platform === 'GitHub') {
         setGithubUser(username);
         sessionStorage.setItem('githubUser', username);
+        fetchGithubActivity(username);
       }
 
       fetch(`${BASE_URL}/save-user`, {
@@ -81,7 +98,7 @@ function Dashboard() {
         body: JSON.stringify({ username, platform })
       })
         .then(res => res.json())
-        .then(data => console.log("User saved on backend:", data))
+        .then(data => console.log("User saved:", data))
         .catch(err => console.error("Error saving user:", err));
     }
   }, [location]);
@@ -89,7 +106,10 @@ function Dashboard() {
   useEffect(() => {
     const savedGithub = sessionStorage.getItem('githubUser');
     const savedLinkedin = sessionStorage.getItem('linkedinUser');
-    if (savedGithub) setGithubUser(savedGithub);
+    if (savedGithub) {
+      setGithubUser(savedGithub);
+      fetchGithubActivity(savedGithub);
+    }
     if (savedLinkedin) setLinkedinUser(savedLinkedin);
   }, []);
 
@@ -119,9 +139,7 @@ function Dashboard() {
       <div className={`overlay ${sidebarOpen ? 'show' : ''}`} onClick={closeSidebar}></div>
 
       <div className="homepage-description">
-        <p>
-          Welcome to Trail, Connect Trail with Your Favourite Learning, Practicing and Socializing Platform
-        </p>
+        <p>Welcome to Trail — connect your favorite learning, practicing and socializing platform.</p>
       </div>
 
       <div className="logo-container">
@@ -131,21 +149,18 @@ function Dashboard() {
             GitHub
           </div>
         )}
-
         {!linkedinUser && (
           <div className="login-button" onClick={loginWithLinkedIn}>
             <img src={logo3} alt="LinkedIn" />
             LinkedIn
           </div>
         )}
-
         {githubUser && (
           <div className="user-badge">
             <img src={logo2} alt="GitHub" className="platform-icon" />
             <p>{githubUser}</p>
           </div>
         )}
-
         {linkedinUser && (
           <div className="user-badge">
             <img src={logo3} alt="LinkedIn" className="platform-icon" />
@@ -153,6 +168,21 @@ function Dashboard() {
           </div>
         )}
       </div>
+
+      {githubUser && activityData.length > 0 && (
+        <div className="activity-graph">
+          <h3 style={{ color: '#fff' }}>{githubUser}'s Contributions</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={activityData}>
+              <CartesianGrid stroke="#444" />
+              <XAxis dataKey="date" tick={{ fill: '#fff' }} />
+              <YAxis tick={{ fill: '#fff' }} />
+              <Tooltip />
+              <Line type="monotone" dataKey="count" stroke="#00ff99" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       <div className="chatbox-compact">
         <div className="chatbox-messages">
@@ -166,7 +196,6 @@ function Dashboard() {
           ))}
           <div ref={messagesEndRef}></div>
         </div>
-
         <div className="chatbox-input">
           <input
             type="text"
